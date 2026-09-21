@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: "Validate HTML5"
-        inline_comment: "Mengecek apakah ada tag HTML yang rusak atau lupa ditutup"
+        # Mengecek apakah ada tag HTML yang rusak atau lupa ditutup
         uses: cyb3r-jak3/html5validator-action@v7.3.0
         with:
           root: '.'
