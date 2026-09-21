@@ -1,0 +1,56 @@
+name: "🎵 NIMUSIC-V6 Professional Deployer"
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true # Otomatis membatalkan deploy lama jika kamu push kode baru lagi
+
+jobs:
+  # Tahap 1: Pengecekan kualitas kode (Biar makin keren layaknya tim dev pro)
+  code-check:
+    name: "🔍 Code Quality Check"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "📥 Checkout Source Code"
+        uses: actions/checkout@v4
+
+      - name: "Validate HTML5"
+        inline_comment: "Mengecek apakah ada tag HTML yang rusak atau lupa ditutup"
+        uses: cyb3r-jak3/html5validator-action@v7.3.0
+        with:
+          root: '.'
+        continue-on-error: true # Tetap lanjut deploy meskipun ada peringatan kecil di HTML
+
+  # Tahap 2: Pengiriman langsung ke internet
+  deploy:
+    name: "🚀 Live Deployment"
+    needs: code-check # Menunggu pengecekan kode selesai
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: "📥 Checkout Source Code"
+        uses: actions/checkout@v4
+
+      - name: "🔧 Configure GitHub Pages"
+        uses: actions/configure-pages@v5
+
+      - name: "📦 Pack Static Web Assets"
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.' # Mengunggah seluruh folder HTML/CSS/JS kamu
+
+      - name: "🎉 Publish to GitHub Pages"
+        id: deployment
+        uses: actions/deploy-pages@v5
