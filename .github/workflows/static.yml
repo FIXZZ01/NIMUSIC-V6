@@ -11,6 +11,7 @@ on:
 permissions:
   contents: read
   pages: write
+  id-token: write  # <--- Tambahkan baris ini
 
 concurrency:
   group: "pages-${{ github.ref }}"
