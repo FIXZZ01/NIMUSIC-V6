@@ -1,0 +1,43 @@
+# Advanced workflow untuk mendeploy konten statis secara aman dan efisien ke GitHub Pages
+name: "Deploy Static Content to GitHub Pages (Advanced)"
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Mengatur permission default token GITHUB_TOKEN seminimal mungkin demi keamanan
+permissions:
+  contents: read
+  pages: write
+
+concurrency:
+  group: "pages-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: "Build and Deploy Content"
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: "Setup GitHub Pages Configuration"
+        uses: actions/configure-pages@v5
+
+      - name: "Upload Build Artifacts"
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.' # Silakan ubah ke folder build khusus (misal: './dist' atau './build') jika ada
+
+      - name: "Publish to GitHub Pages"
+        id: deployment
+        uses: actions/deploy-pages@v5
